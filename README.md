@@ -1,6 +1,6 @@
 # easy-sql-tests
 
-> A module to write easy SQL tests
+> Micro framework to execute tests for T-SQL logic
 
 ## Install
 
@@ -30,7 +30,11 @@ it('My query test', function(done) {
 
   var testSteps = [
     {
-      query: 'SELECT * FROM [MY_TABLE]',
+      storProcName: '[sp].[STOR_PROC]',
+      args: {
+        intArg: 1,
+        strArg: 'string'
+      },
       assertionCallback: assertionCallback
     }
   ];
@@ -49,8 +53,8 @@ it('My stor proc test', function(done) {
       return done();
     }
 
-    // test that recordsets are
-    expect(recordsets.length).to.not.equal(0);
+    // test that we returned a table
+    expect(recordsets.length).to.equal(1);
   };
 
   var testSteps = [
@@ -78,18 +82,16 @@ it('My query test', function(done) {
   ];
 
   var assertionCallback = function(error, recordsets) {
-    if (error) {
-      console.log(error);
-      return done();
-    }
-
-    // test that we returned a table
-    expect(recordsets.length).to.equal(1);
+    // ...
   };
 
   var testSteps = [
+    // {
+    //    another test step
+    // },
     {
-      query: 'SELECT * FROM [MY_TABLE]',
+      storProcName: '[sp].[STOR_PROC]',
+      args: {},
       assertionCallback: assertionCallback
     }
   ];
@@ -103,13 +105,7 @@ OR
 ```javascript
 it('My query test', function(done) {
   var assertionCallback = function(error, recordsets) {
-    if (error) {
-      console.log(error);
-      return done();
-    }
-
-    // test that we returned a table
-    expect(recordsets.length).to.equal(1);
+    // ...
   };
 
   var testSteps = [
@@ -118,9 +114,13 @@ it('My query test', function(done) {
         "INSERT INTO [MY_TABLE] ([intVal],[strVal]) VALUES (1,'A');",
         "INSERT INTO [MY_TABLE] ([intVal],[strVal]) VALUES (2,'B');"
       ]
-    }
+    },
+    // {
+    //    another test step
+    // },
     {
-      query: 'SELECT * FROM [MY_TABLE]',
+      storProcName: '[sp].[STOR_PROC]',
+      args: {},
       assertionCallback: assertionCallback
     }
   ];
