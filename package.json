@@ -1,0 +1,49 @@
+{
+  "name": "easy-sql-tests",
+  "version": "1.0.0",
+  "author": "anvk",
+  "main": "dist/easy-sql-test.js",
+  "description": "Micro framework to execute tests for T-SQL logic",
+  "contributors": [
+    {
+      "name": "Alexey Novak",
+      "email": "alexey.novak.mail@gmail.com"
+    }
+  ],
+  "scripts": {
+    "test": "node node_modules/mocha/bin/mocha --reporter spec test/*"
+  },
+  "directories": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:anvk/easy-sql-tests.git"
+  },
+  "keywords": [
+    "T-SQL",
+    "sql",
+    "test suite",
+    "test",
+    "logic",
+    "tests"
+  ],
+  "dependencies": {
+    "mssql": "2.1.6"
+  },
+  "devDependencies": {
+    "babel": "5.6.5",
+    "chai": "3.0.0",
+    "gulp": "3.9.0",
+    "gulp-babel": "5.1.0",
+    "gulp-mocha": "2.1.2",
+    "mocha": "2.2.5"
+  },
+  "engine": "node >= 0.10.x",
+  "homepage": "http://github.com/anvk/easy-sql-tests",
+  "bugs": {
+    "url": "https://github.com/anvk/easy-sql-tests/issues"
+  },
+  "private": false,
+  "license": "MIT"
+}
