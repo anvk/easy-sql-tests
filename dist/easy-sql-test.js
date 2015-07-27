@@ -41,7 +41,7 @@ var EasySQLTest = (function () {
     this._query = this._query.bind(this);
     this._executeStorProc = this._executeStorProc.bind(this);
     this._compileTest = this._compileTest.bind(this);
-    this._convertPrepQueriesToTestSteps = this._convertPrepQueriesToTestSteps.bind(this);
+    this._convertQueriesToTestSteps = this._convertQueriesToTestSteps.bind(this);
   }
 
   _createClass(EasySQLTest, [{
@@ -84,8 +84,10 @@ var EasySQLTest = (function () {
       return request.query(query, callback);
     }
   }, {
-    key: '_convertPrepQueriesToTestSteps',
-    value: function _convertPrepQueriesToTestSteps() {
+    key: '_convertQueriesToTestSteps',
+    value: function _convertQueriesToTestSteps() {
+      var _this = this;
+
       var prepQueries = arguments.length <= 0 || arguments[0] === undefined ? [] : arguments[0];
 
       var result = [];
@@ -99,7 +101,12 @@ var EasySQLTest = (function () {
           var query = _step.value;
 
           result.push({
-            query: query
+            query: query,
+            assertionCallback: function assertionCallback(error) {
+              if (error) {
+                _this._errorCallback(error);
+              }
+            }
           });
         }
       } catch (err) {
@@ -122,7 +129,7 @@ var EasySQLTest = (function () {
   }, {
     key: '_compileTest',
     value: function _compileTest() {
-      var _this = this;
+      var _this2 = this;
 
       var testSteps = arguments.length <= 0 || arguments[0] === undefined ? [] : arguments[0];
       var doneCallback = arguments.length <= 1 || arguments[1] === undefined ? function () {} : arguments[1];
@@ -143,7 +150,7 @@ var EasySQLTest = (function () {
       var queries = _testStep$queries === undefined ? [] : _testStep$queries;
 
       if (queries.length) {
-        testSteps = [].concat(_toConsumableArray(this._convertPrepQueriesToTestSteps(queries)), _toConsumableArray(testSteps));
+        testSteps = [].concat(_toConsumableArray(this._convertQueriesToTestSteps(queries)), _toConsumableArray(testSteps));
 
         return this._compileTest(testSteps, doneCallback);
       }
@@ -154,12 +161,12 @@ var EasySQLTest = (function () {
 
       var callback = function callback(error, recordsets) {
         if (error) {
-          return _this._errorCallback(error);
+          return assertionCallback(error);
         }
 
-        assertionCallback(recordsets);
+        assertionCallback(null, recordsets);
 
-        _this._compileTest(testSteps, doneCallback);
+        _this2._compileTest(testSteps, doneCallback);
       };
 
       if (storProcName) {
@@ -184,7 +191,7 @@ var EasySQLTest = (function () {
       var testSteps = arguments.length <= 1 || arguments[1] === undefined ? [] : arguments[1];
       var doneCallback = arguments.length <= 2 || arguments[2] === undefined ? function () {} : arguments[2];
 
-      testSteps = [].concat(_toConsumableArray(this._convertPrepQueriesToTestSteps(prepQueries)), _toConsumableArray(testSteps));
+      testSteps = [].concat(_toConsumableArray(this._convertQueriesToTestSteps(prepQueries)), _toConsumableArray(testSteps));
 
       this._compileTest(testSteps, doneCallback);
     }

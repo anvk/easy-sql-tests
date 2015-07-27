@@ -18,7 +18,7 @@ export default class EasySQLTest {
     this._query = this._query.bind(this);
     this._executeStorProc = this._executeStorProc.bind(this);
     this._compileTest = this._compileTest.bind(this);
-    this._convertPrepQueriesToTestSteps = this._convertPrepQueriesToTestSteps.bind(this);
+    this._convertQueriesToTestSteps = this._convertQueriesToTestSteps.bind(this);
   }
 
   connectionOpen(callback = ()=>{}) {
@@ -60,12 +60,17 @@ export default class EasySQLTest {
     return request.query(query, callback);
   }
 
-  _convertPrepQueriesToTestSteps(prepQueries = []) {
+  _convertQueriesToTestSteps(prepQueries = []) {
     let result = [];
 
     for (let query of prepQueries) {
       result.push({
-        query: query
+        query: query,
+        assertionCallback: error => {
+          if (error) {
+            this._errorCallback(error);
+          }
+        }
       });
     }
 
@@ -82,7 +87,7 @@ export default class EasySQLTest {
     let {storProcName, args={}, query, assertionCallback=()=>{}, queries = []} = testStep;
 
     if (queries.length) {
-      testSteps = [...this._convertPrepQueriesToTestSteps(queries), ...testSteps];
+      testSteps = [...this._convertQueriesToTestSteps(queries), ...testSteps];
 
       return this._compileTest(testSteps, doneCallback);
     }
@@ -93,10 +98,10 @@ export default class EasySQLTest {
 
     let callback = (error, recordsets) => {
       if (error) {
-        return this._errorCallback(error);
+        return assertionCallback(error);
       }
 
-      assertionCallback(recordsets);
+      assertionCallback(null, recordsets);
 
       this._compileTest(testSteps, doneCallback);
     };
@@ -117,7 +122,7 @@ export default class EasySQLTest {
   }
 
   compileTest(prepQueries = [], testSteps = [], doneCallback = ()=>{}) {
-    testSteps = [...this._convertPrepQueriesToTestSteps(prepQueries), ...testSteps];
+    testSteps = [...this._convertQueriesToTestSteps(prepQueries), ...testSteps];
 
     this._compileTest(testSteps, doneCallback);
   }
