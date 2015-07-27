@@ -91,6 +91,50 @@ describe('my test suite', function() {
 });
 ```
 
+### Setup cleanup for the test suite
+
+```javascript
+describe('my test suite', function() {
+  var easySQLTests;
+
+  // ...
+
+  // runs before all the tests
+  before(function(done) {
+    easySQLTests = new EasySQLTest({
+      dbConfig: dbConfig,
+      cleanupQuery: 'EXEC [test].[CLEANUP_LOGIC]'
+    });
+
+    easySQLTests.connectionOpen(function(error) {
+      if (error) {
+        console.log(error);
+        return done();
+      }
+
+      // cleanup before running tests
+      easySQLTest.cleanup(function(error) {
+        if (error) {
+          errorCallback(error);
+        }
+
+        done();
+      });
+    });
+  });
+
+  // ...
+
+  // runs after every test case
+  afterEach(function(done) {
+    cleanup(done);
+  });
+
+  // ...
+
+});
+```
+
 ### Run basic query test
 
 ```javascript
@@ -112,7 +156,7 @@ it('My query test', function(done) {
     }
   ];
 
-  easySQLTest.compileTest(undefined, testSteps, done);
+  easySQLTests.compileTest(undefined, testSteps, done);
 });
 ```
 
@@ -141,7 +185,7 @@ it('My stor proc test', function(done) {
     }
   ];
 
-  easySQLTest.compileTest(undefined, testSteps, done);
+  easySQLTests.compileTest(undefined, testSteps, done);
 });
 ```
 
@@ -187,7 +231,7 @@ it('Multiple steps inside the test', function(done) {
     },
   ];
 
-  easySQLTest.compileTest(undefined, testSteps, done);
+  easySQLTests.compileTest(undefined, testSteps, done);
 });
 ```
 
@@ -215,7 +259,7 @@ it('Prep queries before test', function(done) {
     }
   ];
 
-  easySQLTest.compileTest(prepQueries, testSteps, done);
+  easySQLTests.compileTest(prepQueries, testSteps, done);
 });
 ```
 
@@ -244,11 +288,147 @@ it('Prep queries before test', function(done) {
     }
   ];
 
-  easySQLTest.compileTest(undefined, testSteps, done);
+  easySQLTests.compileTest(undefined, testSteps, done);
+});
+```
+
+### Setting up a fail callback when prep queries fail
+
+```javascript
+describe('my test suite', function() {
+  var easySQLTests;
+
+  var errorCallback = function(error) {
+    console.error(error);
+
+    // DO SOME EXTRA LOGIC HERE
+  };
+
+  // ...
+
+  // runs before all the tests
+  before(function(done) {
+    easySQLTests = new EasySQLTest({
+      dbConfig: dbConfig,
+      errorCallback: errorCallback
+    });
+  });
+
+  // ...
+
 });
 ```
 
 ## Full Example
+
+```javascript
+var EasySQLTests = require('easy-sql-test'));
+
+describe('my test suite', function() {
+
+  var easySQLTests;
+
+  var dbConfig = {
+    user: "USERNAME",
+    password: "PASSWORD",
+    server: "MY_SERVER",
+    database: "DB"
+  };
+
+  var errorCallback = function(error) {
+    console.error(error);
+  };
+
+  var cleanup = function(done) {
+    easySQLTests.cleanup(function(error) {
+      if (error) {
+        errorCallback(error);
+      }
+
+      done();
+    });
+  };
+
+  // runs before all the tests
+  before(function(done) {
+    easySQLTests = new EasySQLTest({
+      dbConfig: dbConfig,
+      cleanupQuery: 'EXEC [test].[CLEANUP_LOGIC]',
+      errorCallback: errorCallback
+    });
+
+    easySQLTests.connectionOpen(function(error) {
+      if (error) {
+        errorCallback(error);
+        return done();
+      }
+
+      cleanup(done);
+    });
+  });
+
+  // runs after all tests in this block
+  after(function() {
+    easySQLTests.connectionClose();
+  });
+
+  // runs after every test case
+  afterEach(function(done) {
+    cleanup(done);
+  });
+
+  it('Different Vendors. Select all vendors', function(done) {
+
+    var prepQueries = [
+      "INSERT INTO [MY_TABLE] ([intVal],[strVal]) VALUES (1,'A');",
+      "INSERT INTO [MY_TABLE] ([intVal],[strVal]) VALUES (2,'B');"
+    ];
+
+    var assertionCallback = sinon.spy(function(error, recordsets) {
+      if (error) {
+        return console.error(error);
+      }
+
+      // we have data
+      expect(recordsets.length).to.not.equal(0);
+    });
+
+    var assertionCallback = sinon.spy(function(error, recordsets) {
+      if (error) {
+        return console.error(error);
+      }
+
+      // we have data
+      expect(recordsets.length).to.not.equal(0);
+      // we have at least one row
+      expect(recordsets[0]).to.not.equal(0);
+    });
+
+    var testSteps = [
+      {
+        storProcName: '[sp].[STOR_PROC]',
+        args: {
+          intArg: 1,
+          strArg: 'string'
+        },
+        assertionCallback: assertionCallback
+      },
+      {
+        query: 'SELECT * FROM [MY_TABLE]',
+        assertionCallback: assertionCallback
+      }
+    ];
+
+    easySQLTests.compileTest(prepQueries, testSteps, function() {
+      expect(assertionCallback.called).to.be.true;
+      expect(assertionCallback.callCount).to.equal(1);
+
+      done();
+    });
+  });
+
+});
+```
 
 ## License
 
