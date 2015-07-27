@@ -98,10 +98,10 @@ export default class EasySQLTest {
 
     let callback = (error, recordsets) => {
       if (error) {
-        return assertionCallback(error);
+        assertionCallback(error);
+      } else {
+        assertionCallback(null, recordsets);
       }
-
-      assertionCallback(null, recordsets);
 
       this._compileTest(testSteps, doneCallback);
     };

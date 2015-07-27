@@ -161,10 +161,10 @@ var EasySQLTest = (function () {
 
       var callback = function callback(error, recordsets) {
         if (error) {
-          return assertionCallback(error);
+          assertionCallback(error);
+        } else {
+          assertionCallback(null, recordsets);
         }
-
-        assertionCallback(null, recordsets);
 
         _this2._compileTest(testSteps, doneCallback);
       };
