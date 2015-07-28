@@ -1,4 +1,4 @@
-# easy-sql-tests
+# easy-sql-tests [![Build Status](https://travis-ci.org/anvk/easy-sql-tests.svg?branch=master)](https://travis-ci.org/anvk/easy-sql-tests)
 
 > Micro framework to execute tests for T-SQL logic
 
@@ -8,13 +8,59 @@
 $ npm install --save-dev easy-sql-tests
 ```
 
+
 ## API
 
-> TBD
+#### EasySQLTests(options)
+
+> constructor to initialize easy sql tests module  
+> **options** - options for the module  
+> **options.dbConfig** - mssql module database configuration  
+> **options.dbConfig.user**  
+> **options.dbConfig.password**  
+> **options.dbConfig.server**  
+> **options.dbConfig.database**  
+> **options.cleanupQuery** - (optional) query to be executed for cleanup() function  
+> **options.errorCallback** - (optional) function callback to be executed if one of the prepQueries will fail to execute  
+
+#### connectionOpen(callback)
+
+> function to open connection to the DB.
+
+#### connectionClose()
+
+> function to close connection to the DB.
+
+#### cleanup(callback)
+
+> function to execute cleanup query if it was passed into constructor
+
+#### compileTest(prepQueries, testSteps, doneCallback)
+
+> function to execute test steps  
+> **prepQueries** - array of string queries to be executed prior testSteps  
+> **testSteps** - array of test step objects  
+> **testSteps.storProcName** - stored procedure name to be executed  
+> **testSteps.args** - object containing arguments for stored procedure  
+> **testSteps.query** - string containing query to be executed
+> **testSteps.assertionCallback** - callback after query/storProc being executed. Put your assertions inside  
+> **testSteps.queries** - array of strings representing queries to be executed  
+
+#### connection
+
+> property which contains MSSQL connection
+
+#### dbConfig
+
+> property which contains DB Configuration
+
 
 ## Usage
 
+
 ### Create instance of easySQLTests
+
+In order to create an instance of the module to use in your test follow this simple example:
 
 ```javascript
 var EasySQLTests = require('easy-sql-tests');
@@ -45,7 +91,10 @@ describe('my test suite', function() {
 });
 ```
 
+
 ### Open and Close connection
+
+Most of the times you will need to open connection once and close by the end of your tests.
 
 ```javascript
 var EasySQLTests = require('easy-sql-tests');
@@ -91,7 +140,11 @@ describe('my test suite', function() {
 });
 ```
 
+
 ### Setup cleanup for the test suite
+
+To ensure proper testing you might want to cleanup all temporarily generated data by your tests.  
+You can easily achieve that by defining a `cleanupQuery` and calling `cleanup()` function.
 
 ```javascript
 describe('my test suite', function() {
@@ -135,6 +188,7 @@ describe('my test suite', function() {
 });
 ```
 
+
 ### Run basic query test
 
 ```javascript
@@ -159,6 +213,7 @@ it('My query test', function(done) {
   easySQLTests.compileTest(undefined, testSteps, done);
 });
 ```
+
 
 ### Run basic stor proc test
 
@@ -189,7 +244,10 @@ it('My stor proc test', function(done) {
 });
 ```
 
+
 ### Run multiple test steps
+
+If you need to run multiple steps to check that logic is correct then you can define multiple `testSteps` with their assertions.
 
 ```javascript
 it('Multiple steps inside the test', function(done) {
@@ -235,7 +293,11 @@ it('Multiple steps inside the test', function(done) {
 });
 ```
 
+
 ### Run queries before executing your test
+
+Some of the tests require initial setup of the data or state in your testing database.  
+'prepQueries' are there for you to make this initial setup.
 
 ```javascript
 it('Prep queries before test', function(done) {
@@ -292,6 +354,7 @@ it('Prep queries before test', function(done) {
 });
 ```
 
+
 ### Setting up a fail callback when prep queries fail
 
 ```javascript
@@ -318,6 +381,7 @@ describe('my test suite', function() {
 
 });
 ```
+
 
 ## Full Example
 
@@ -429,6 +493,7 @@ describe('my test suite', function() {
 
 });
 ```
+
 
 ## License
 
