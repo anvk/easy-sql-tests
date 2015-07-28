@@ -4,7 +4,11 @@ import sql from 'mssql';
 
 export default class EasySQLTest {
 
-  constructor({dbConfig = {}, errorCallback = e=>console.error(e), cleanupQuery}) {
+  constructor({dbConfig, errorCallback = e=>console.error(e), cleanupQuery} = {}) {
+    if (!dbConfig) {
+      throw 'easy-sql-test: dbConfig required';
+    }
+
     this._dbConfig = dbConfig;
     this._connection = undefined;
     this._errorCallback = errorCallback;
