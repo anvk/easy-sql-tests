@@ -8,7 +8,7 @@ describe('easy-sql-test tests', function() {
 
   // TODO: write tests
   it('dummy test', function() {
-    expect(true).to.be.true;
+    expect(true).to.be.false;
   });
 
 });

@@ -1,6 +1,6 @@
 # easy-sql-tests [![Build Status](https://travis-ci.org/anvk/easy-sql-tests.svg?branch=master)](https://travis-ci.org/anvk/easy-sql-tests)
 
-> Micro framework to execute tests for T-SQL logic
+> Micro framework to execute tests for T-SQL logic in Node.js
 
 ## Install
 
@@ -499,4 +499,4 @@ describe('my test suite', function() {
 
 MIT license; see [LICENSE](./LICENSE).
 
-(c) 2015 by Alexey Novak
+(c) 2015 by Alexey Novak and Abdul Khan

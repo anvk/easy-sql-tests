@@ -1,13 +1,17 @@
 {
   "name": "easy-sql-tests",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "author": "anvk",
   "main": "dist/easy-sql-test.js",
-  "description": "Micro framework to execute tests for T-SQL logic",
+  "description": "Micro framework to execute tests for T-SQL logic in Node.js",
   "contributors": [
     {
       "name": "Alexey Novak",
       "email": "alexey.novak.mail@gmail.com"
+    },
+    {
+      "name": "Abdul Khan",
+      "email": "abdulask@gmail.com"
     }
   ],
   "scripts": {
