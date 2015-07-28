@@ -17,9 +17,10 @@ var _mssql = require('mssql');
 var _mssql2 = _interopRequireDefault(_mssql);
 
 var EasySQLTest = (function () {
-  function EasySQLTest(_ref) {
-    var _ref$dbConfig = _ref.dbConfig;
-    var dbConfig = _ref$dbConfig === undefined ? {} : _ref$dbConfig;
+  function EasySQLTest() {
+    var _ref = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+
+    var dbConfig = _ref.dbConfig;
     var _ref$errorCallback = _ref.errorCallback;
     var errorCallback = _ref$errorCallback === undefined ? function (e) {
       return console.error(e);
@@ -27,6 +28,10 @@ var EasySQLTest = (function () {
     var cleanupQuery = _ref.cleanupQuery;
 
     _classCallCheck(this, EasySQLTest);
+
+    if (!dbConfig) {
+      throw 'easy-sql-test: dbConfig required';
+    }
 
     this._dbConfig = dbConfig;
     this._connection = undefined;
