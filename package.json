@@ -1,6 +1,6 @@
 {
   "name": "easy-sql-tests",
-  "version": "1.0.3",
+  "version": "1.1.0",
   "author": "anvk",
   "main": "dist/easy-sql-test.js",
   "description": "Micro framework to execute tests for T-SQL logic in Node.js",

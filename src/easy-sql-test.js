@@ -4,7 +4,7 @@ import sql from 'mssql';
 
 export default class EasySQLTest {
 
-  constructor({dbConfig = {}, errorCallback = e=>console.error(e), cleanupQuery}) {
+  constructor(dbConfig = {}, {errorCallback = e=>console.error(e), cleanupQuery}) {
     this._dbConfig = dbConfig;
     this._connection = undefined;
     this._errorCallback = errorCallback;
@@ -17,7 +17,6 @@ export default class EasySQLTest {
 
     this._query = this._query.bind(this);
     this._executeStorProc = this._executeStorProc.bind(this);
-    this._compileTest = this._compileTest.bind(this);
     this._convertQueriesToTestSteps = this._convertQueriesToTestSteps.bind(this);
   }
 
@@ -77,23 +76,23 @@ export default class EasySQLTest {
     return result;
   }
 
-  _compileTest(testSteps = [], doneCallback = ()=>{}) {
+  compileTest(testSteps = [], doneCallback = ()=>{}) {
     let testStep = testSteps.shift();
 
     if (!testStep) {
       return doneCallback();
     }
 
-    let {storProcName, args={}, query, assertionCallback=()=>{}, queries = []} = testStep;
+    let {storProcName, args = {}, query, assertionCallback = ()=>{}, queries = []} = testStep;
 
     if (queries.length) {
       testSteps = [...this._convertQueriesToTestSteps(queries), ...testSteps];
 
-      return this._compileTest(testSteps, doneCallback);
+      return this.compileTest(testSteps, doneCallback);
     }
 
     if (!storProcName && !query) {
-      return this._compileTest(testSteps, doneCallback);
+      return this.compileTest(testSteps, doneCallback);
     }
 
     let callback = (error, recordsets) => {
@@ -103,7 +102,7 @@ export default class EasySQLTest {
         assertionCallback(null, recordsets);
       }
 
-      this._compileTest(testSteps, doneCallback);
+      this.compileTest(testSteps, doneCallback);
     };
 
     if (storProcName) {
@@ -119,12 +118,6 @@ export default class EasySQLTest {
     }
 
     this._query(this._cleanupQuery, callback);
-  }
-
-  compileTest(prepQueries = [], testSteps = [], doneCallback = ()=>{}) {
-    testSteps = [...this._convertQueriesToTestSteps(prepQueries), ...testSteps];
-
-    this._compileTest(testSteps, doneCallback);
   }
 
 };

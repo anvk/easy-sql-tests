@@ -11,15 +11,16 @@ $ npm install --save-dev easy-sql-tests
 
 ## API
 
-#### EasySQLTests(options)
+#### EasySQLTests(dbConfig, [options])
 
-> constructor to initialize easy sql tests module  
-> **options** - options for the module  
-> **options.dbConfig** - mssql module database configuration  
-> **options.dbConfig.user**  
-> **options.dbConfig.password**  
-> **options.dbConfig.server**  
-> **options.dbConfig.database**  
+> constructor to initialize easy sql tests module
+
+> **dbConfig** - mssql module database configuration  
+> **dbConfig.user**  
+> **dbConfig.password**  
+> **dbConfig.server**  
+> **dbConfig.database**   
+> **options** - extra options for the module   
 > **options.cleanupQuery** - (optional) query to be executed for cleanup() function  
 > **options.errorCallback** - (optional) function callback to be executed if one of the prepQueries will fail to execute  
 
@@ -35,16 +36,16 @@ $ npm install --save-dev easy-sql-tests
 
 > function to execute cleanup query if it was passed into constructor
 
-#### compileTest(prepQueries, testSteps, doneCallback)
+#### compileTest(testSteps, doneCallback)
 
 > function to execute test steps  
-> **prepQueries** - array of string queries to be executed prior testSteps  
-> **testSteps** - array of test step objects  
-> **testSteps.storProcName** - stored procedure name to be executed  
-> **testSteps.args** - object containing arguments for stored procedure  
-> **testSteps.query** - string containing query to be executed
-> **testSteps.assertionCallback** - callback after query/storProc being executed. Put your assertions inside  
-> **testSteps.queries** - array of strings representing queries to be executed  
+
+> **testSteps** - array of testStep objects  
+> **testStep.storProcName** - stored procedure name to be executed  
+> **testStep.args** - object containing arguments for stored procedure  
+> **testStep.query** - string containing query to be executed  
+> **testStep.assertionCallback** - callback after query/storProc being executed. Put your assertions inside   
+> **testStep.queries** - array of strings representing queries to be executed  
 
 #### connection
 
@@ -81,9 +82,7 @@ describe('my test suite', function() {
 
   // runs before all the tests
   before(function(done) {
-    easySQLTests = new EasySQLTest({
-      dbConfig: dbConfig
-    });
+    easySQLTests = new EasySQLTest(dbConfig);
   });
 
   // ...
@@ -115,9 +114,7 @@ describe('my test suite', function() {
 
   // runs before all the tests
   before(function(done) {
-    easySQLTests = new EasySQLTest({
-      dbConfig: dbConfig
-    });
+    easySQLTests = new EasySQLTest(dbConfig);
 
     easySQLTests.connectionOpen(function(error) {
       if (error) {
@@ -144,7 +141,7 @@ describe('my test suite', function() {
 ### Setup cleanup for the test suite
 
 To ensure proper testing you might want to cleanup all temporarily generated data by your tests.  
-You can easily achieve that by defining a `cleanupQuery` and calling `cleanup()` function.
+You can easily achieve that by defining a **cleanupQuery** and calling **cleanup()** function.
 
 ```javascript
 describe('my test suite', function() {
@@ -154,8 +151,7 @@ describe('my test suite', function() {
 
   // runs before all the tests
   before(function(done) {
-    easySQLTests = new EasySQLTest({
-      dbConfig: dbConfig,
+    easySQLTests = new EasySQLTest(dbConfig, {
       cleanupQuery: 'EXEC [test].[CLEANUP_LOGIC]'
     });
 
@@ -210,7 +206,7 @@ it('My query test', function(done) {
     }
   ];
 
-  easySQLTests.compileTest(undefined, testSteps, done);
+  easySQLTests.compileTest(testSteps, done);
 });
 ```
 
@@ -240,14 +236,14 @@ it('My stor proc test', function(done) {
     }
   ];
 
-  easySQLTests.compileTest(undefined, testSteps, done);
+  easySQLTests.compileTest(testSteps, done);
 });
 ```
 
 
 ### Run multiple test steps
 
-If you need to run multiple steps to check that logic is correct then you can define multiple `testSteps` with their assertions.
+If you need to run multiple steps to check that logic is correct then you can define multiple **testSteps** with their assertions.
 
 ```javascript
 it('Multiple steps inside the test', function(done) {
@@ -289,43 +285,14 @@ it('Multiple steps inside the test', function(done) {
     },
   ];
 
-  easySQLTests.compileTest(undefined, testSteps, done);
+  easySQLTests.compileTest(testSteps, done);
 });
 ```
 
 
 ### Run queries before executing your test
 
-Some of the tests require initial setup of the data or state in your testing database.  
-'prepQueries' are there for you to make this initial setup.
-
-```javascript
-it('Prep queries before test', function(done) {
-  var prepQueries = [
-    "INSERT INTO [MY_TABLE] ([intVal],[strVal]) VALUES (1,'A');",
-    "INSERT INTO [MY_TABLE] ([intVal],[strVal]) VALUES (2,'B');"
-  ];
-
-  var assertionCallback = function(error, recordsets) {
-    // ...
-  };
-
-  var testSteps = [
-    // {
-    //    another test step
-    // },
-    {
-      storProcName: '[sp].[STOR_PROC]',
-      args: {},
-      assertionCallback: assertionCallback
-    }
-  ];
-
-  easySQLTests.compileTest(prepQueries, testSteps, done);
-});
-```
-
-OR
+Some of the tests require initial setup of the data or state in your testing database.
 
 ```javascript
 it('Prep queries before test', function(done) {
@@ -350,12 +317,15 @@ it('Prep queries before test', function(done) {
     }
   ];
 
-  easySQLTests.compileTest(undefined, testSteps, done);
+  easySQLTests.compileTest(testSteps, done);
 });
 ```
 
 
 ### Setting up a fail callback when prep queries fail
+
+You might want to capture and execute special logic in case one of the prep queries will fail.  
+In order to do so **errorCallback** is executed whenever one of those queries fails.
 
 ```javascript
 describe('my test suite', function() {
@@ -371,8 +341,7 @@ describe('my test suite', function() {
 
   // runs before all the tests
   before(function(done) {
-    easySQLTests = new EasySQLTest({
-      dbConfig: dbConfig,
+    easySQLTests = new EasySQLTest(dbConfig, {
       errorCallback: errorCallback
     });
   });
@@ -385,8 +354,10 @@ describe('my test suite', function() {
 
 ## Full Example
 
+A full blown example with open/close connection, cleanup query after each test will look the following:
+
 ```javascript
-var EasySQLTests = require('easy-sql-test'));
+var EasySQLTests = require('easy-sql-tests'));
 
 describe('my test suite', function() {
 
@@ -415,8 +386,7 @@ describe('my test suite', function() {
 
   // runs before all the tests
   before(function(done) {
-    easySQLTests = new EasySQLTest({
-      dbConfig: dbConfig,
+    easySQLTests = new EasySQLTests(dbConfig, {
       cleanupQuery: 'EXEC [test].[CLEANUP_LOGIC]',
       errorCallback: errorCallback
     });
@@ -443,11 +413,6 @@ describe('my test suite', function() {
 
   it('Different Vendors. Select all vendors', function(done) {
 
-    var prepQueries = [
-      "INSERT INTO [MY_TABLE] ([intVal],[strVal]) VALUES (1,'A');",
-      "INSERT INTO [MY_TABLE] ([intVal],[strVal]) VALUES (2,'B');"
-    ];
-
     var assertionCallback = sinon.spy(function(error, recordsets) {
       if (error) {
         return console.error(error);
@@ -457,7 +422,7 @@ describe('my test suite', function() {
       expect(recordsets.length).to.not.equal(0);
     });
 
-    var assertionCallback = sinon.spy(function(error, recordsets) {
+    var assertionCallback = function(error, recordsets) {
       if (error) {
         return console.error(error);
       }
@@ -466,9 +431,15 @@ describe('my test suite', function() {
       expect(recordsets.length).to.not.equal(0);
       // we have at least one row
       expect(recordsets[0]).to.not.equal(0);
-    });
+    };
 
     var testSteps = [
+      {
+        queries: [
+          "INSERT INTO [MY_TABLE] ([intVal],[strVal]) VALUES (1,'A');",
+          "INSERT INTO [MY_TABLE] ([intVal],[strVal]) VALUES (2,'B');"
+        ]
+      },
       {
         storProcName: '[sp].[STOR_PROC]',
         args: {
@@ -483,12 +454,7 @@ describe('my test suite', function() {
       }
     ];
 
-    easySQLTests.compileTest(prepQueries, testSteps, function() {
-      expect(assertionCallback.called).to.be.true;
-      expect(assertionCallback.callCount).to.equal(1);
-
-      done();
-    });
+    easySQLTests.compileTest(testSteps, done);
   });
 
 });
