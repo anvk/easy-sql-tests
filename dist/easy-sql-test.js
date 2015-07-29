@@ -68,6 +68,10 @@ var EasySQLTest = (function () {
     value: function _executeStorProc(storProcName, args, callback) {
       if (args === undefined) args = {};
 
+      if (!storProcName) {
+        throw 'easy-sql-test: _executeStorProc() requires storProcName';
+      }
+
       var request = this._connection.request();
 
       for (var _name in args) {
@@ -79,7 +83,6 @@ var EasySQLTest = (function () {
 
       request.multiple = true;
       request.verbose = false;
-
       return request.execute(storProcName, callback);
     }
   }, {

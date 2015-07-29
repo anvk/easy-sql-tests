@@ -44,6 +44,10 @@ export default class EasySQLTest {
   }
 
   _executeStorProc(storProcName, args = {}, callback) {
+    if (!storProcName) {
+      throw 'easy-sql-test: _executeStorProc() requires storProcName';
+    }
+
     let request = this._connection.request();
 
     for (let name in args) {
@@ -55,7 +59,6 @@ export default class EasySQLTest {
 
     request.multiple = true;
     request.verbose = false;
-
     return request.execute(storProcName, callback);
   }
 
