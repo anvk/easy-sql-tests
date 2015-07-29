@@ -17,10 +17,9 @@ var _mssql = require('mssql');
 var _mssql2 = _interopRequireDefault(_mssql);
 
 var EasySQLTest = (function () {
-  function EasySQLTest() {
-    var _ref = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
 
-    var dbConfig = _ref.dbConfig;
+  function EasySQLTest(dbConfig, _ref) {
+    if (dbConfig === undefined) dbConfig = {};
     var _ref$errorCallback = _ref.errorCallback;
     var errorCallback = _ref$errorCallback === undefined ? function (e) {
       return console.error(e);
@@ -45,7 +44,6 @@ var EasySQLTest = (function () {
 
     this._query = this._query.bind(this);
     this._executeStorProc = this._executeStorProc.bind(this);
-    this._compileTest = this._compileTest.bind(this);
     this._convertQueriesToTestSteps = this._convertQueriesToTestSteps.bind(this);
   }
 
@@ -135,8 +133,8 @@ var EasySQLTest = (function () {
       return result;
     }
   }, {
-    key: '_compileTest',
-    value: function _compileTest() {
+    key: 'compileTest',
+    value: function compileTest() {
       var _this2 = this;
 
       var testSteps = arguments.length <= 0 || arguments[0] === undefined ? [] : arguments[0];
@@ -160,11 +158,11 @@ var EasySQLTest = (function () {
       if (queries.length) {
         testSteps = [].concat(_toConsumableArray(this._convertQueriesToTestSteps(queries)), _toConsumableArray(testSteps));
 
-        return this._compileTest(testSteps, doneCallback);
+        return this.compileTest(testSteps, doneCallback);
       }
 
       if (!storProcName && !query) {
-        return this._compileTest(testSteps, doneCallback);
+        return this.compileTest(testSteps, doneCallback);
       }
 
       var callback = function callback(error, recordsets) {
@@ -174,7 +172,7 @@ var EasySQLTest = (function () {
           assertionCallback(null, recordsets);
         }
 
-        _this2._compileTest(testSteps, doneCallback);
+        _this2.compileTest(testSteps, doneCallback);
       };
 
       if (storProcName) {
@@ -191,17 +189,6 @@ var EasySQLTest = (function () {
       }
 
       this._query(this._cleanupQuery, callback);
-    }
-  }, {
-    key: 'compileTest',
-    value: function compileTest() {
-      var prepQueries = arguments.length <= 0 || arguments[0] === undefined ? [] : arguments[0];
-      var testSteps = arguments.length <= 1 || arguments[1] === undefined ? [] : arguments[1];
-      var doneCallback = arguments.length <= 2 || arguments[2] === undefined ? function () {} : arguments[2];
-
-      testSteps = [].concat(_toConsumableArray(this._convertQueriesToTestSteps(prepQueries)), _toConsumableArray(testSteps));
-
-      this._compileTest(testSteps, doneCallback);
     }
   }, {
     key: 'connection',

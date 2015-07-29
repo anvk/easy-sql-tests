@@ -6,7 +6,6 @@ var chai = require('chai'),
     proxyquire = require('proxyquire'),
     sinon = require('sinon');
 
-
 describe('easy-sql-test tests', function() {
   describe('constructor test', function() {
     it('no dbConfig should throw error', function() {
