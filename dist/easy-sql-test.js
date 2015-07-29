@@ -17,9 +17,9 @@ var _mssql = require('mssql');
 var _mssql2 = _interopRequireDefault(_mssql);
 
 var EasySQLTest = (function () {
+  function EasySQLTest(dbConfig) {
+    var _ref = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
 
-  function EasySQLTest(dbConfig, _ref) {
-    if (dbConfig === undefined) dbConfig = {};
     var _ref$errorCallback = _ref.errorCallback;
     var errorCallback = _ref$errorCallback === undefined ? function (e) {
       return console.error(e);
@@ -105,6 +105,10 @@ var EasySQLTest = (function () {
       try {
         for (var _iterator = prepQueries[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
           var query = _step.value;
+
+          if (!query || /^\s+$/.test(query)) {
+            continue;
+          }
 
           result.push({
             query: query,
