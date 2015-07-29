@@ -4,7 +4,7 @@ import sql from 'mssql';
 
 export default class EasySQLTest {
 
-  constructor(dbConfig, {errorCallback = e=>console.error(e), cleanupQuery}) {
+  constructor(dbConfig, {errorCallback = e=>console.error(e), cleanupQuery}={}) {
     if (!dbConfig) {
       throw 'easy-sql-test: dbConfig required';
     }
@@ -70,6 +70,10 @@ export default class EasySQLTest {
     let result = [];
 
     for (let query of prepQueries) {
+      if (!query || /^\s+$/.test(query)) {
+        continue;
+      }
+
       result.push({
         query: query,
         assertionCallback: error => {
