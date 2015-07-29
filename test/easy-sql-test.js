@@ -102,7 +102,7 @@ describe('easy-sql-test tests', function() {
     });
 
     it('get dbConfig()', function() {
-    	
+
     	var expected = {
     		a: 'a',
     		b: 'b'
@@ -118,13 +118,13 @@ describe('easy-sql-test tests', function() {
   });
 
   describe('_executeStorProc() tests', function(){
-  	
+
     it('no storProcName should throw error', function() {
   		var errorMessage = 'easy-sql-test: _executeStorProc() requires ' +
         'storProcName';
-  		
+
       var easySqlTest = new EasySqlTest({ dbConfig: {}});
-  		
+
       try{
   			easySqlTest._executeStorProc();
   		} catch(err) {
@@ -178,9 +178,9 @@ describe('easy-sql-test tests', function() {
         expect(inputFunctionSpy.callCount).to.equal(7);
     });
 
-    it('request.execute should get correct storProcName and callback', 
+    it('request.execute should get correct storProcName and callback',
       function() {
-      
+
       var executeFunctionSpy = sinon.spy(function() {});
       var sqlStub = {
         Connection: function() {
@@ -213,10 +213,16 @@ describe('easy-sql-test tests', function() {
 
       expect(firstCall.calledWithExactly(storProcName, callbackFunction))
         .to.be.true;
-    
+
       expect(secondCall.calledWithExactly(storProcName, undefined))
          .to.be.true;
     });
 
   });
+
+  describe('_query() tests', function(){
+    it('request.query called correctly', function() {
+
+    });
+  })
 });
