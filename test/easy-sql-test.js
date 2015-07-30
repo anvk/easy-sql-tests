@@ -251,8 +251,8 @@ describe('easy-sql-test tests', function() {
           secondCall = queryFunctionSpy.getCall(1),
           thirdCall = queryFunctionSpy.getCall(2),
           fourthCall = queryFunctionSpy.getCall(3);
+      
       expect(queryFunctionSpy.called).to.be.true;
-
       expect(firstCall.calledWithExactly(expectedArgs, expectedCallback))
         .to.be.true;
       expect(secondCall.calledWithExactly(undefined, expectedCallback))
@@ -325,7 +325,10 @@ describe('easy-sql-test tests', function() {
         }
       );
 
-      _querySpy = new sinon.spy(function() {});
+      _querySpy = new sinon.spy(function(query, callback) {
+        callback();
+      });
+
       assertionCallbackSpy = new sinon.spy(function() {});
 
       easySqlTest._executeStorProc = _executeStorProcSpy;
@@ -346,37 +349,56 @@ describe('easy-sql-test tests', function() {
       expect(_querySpy.called).to.be.false;
     });
 
-    it.only('one testStep with storProc', function() {
-      var firstCall;
+    it('one testStep with storProc', function() {
       testSteps = [
         {
           storProcName: 'a',
-          args: { b: 'b'},
+          args: { b: 'c'},
           assertionCallback: assertionCallbackSpy
         }
       ];
 
-      var storProcName = 'bsdf',
-          args = { b: 'bsdfs' };
-
-
-      easySqlTest.compileTest(testSteps);
       easySqlTest.compileTest(testSteps);
 
-      firstCall = _executeStorProcSpy.getCall(0);
+      var firstCall = _executeStorProcSpy.getCall(0);
       expect(_executeStorProcSpy.called).to.be.true;
       expect(_executeStorProcSpy.callCount).to.equal(1);
-      expect(firstCall.calledWithExactly(storProcName, args));
+      expect(_querySpy.called).to.be.false;
+      
+      // PLEASE NOTE firstCall.args[x] is better and more reliable than
+      // firstCall.calledWith or firstCall.calledWithExactly for some reason!!!
+      expect(firstCall.args[0]).to.equal('a');
+      expect(firstCall.args[1]).to.deep.equal({ b: 'c'});
+
       expect(assertionCallbackSpy.called).to.be.true;
       expect(assertionCallbackSpy.callCount).to.equal(1);
     });
 
-    // it('one testStep with query', function() {
+    it('one testStep with query', function() {
+      testSteps = [
+        {
+          query: 'a',
+          assertionCallback: assertionCallbackSpy
+        }
+      ];
 
-    // });
+      easySqlTest.compileTest(testSteps);
+
+      var firstCall = _querySpy.getCall(0);
+      expect(_querySpy.called).to.be.true;
+      expect(_querySpy.callCount).to.equal(1);
+      expect(firstCall.args[0]).to.equal('a');
+      expect(_executeStorProcSpy.called).to.be.false;
+      expect(assertionCallbackSpy.called).to.be.true;
+      expect(assertionCallbackSpy.callCount).to.equal(1);
+    });
 
     // it('one testStep with storProc and one setup queries', function() {
+    //   testSteps = [
+    //     queries: [
 
+    //     ],
+    //   ]
     // });
 
     // it('one testStep with storProc and two setup queries', function() {
