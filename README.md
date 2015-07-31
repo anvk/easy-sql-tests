@@ -5,24 +5,24 @@
 ## Install
 
 ```
-$ npm install --save-dev easy-sql-tests
+$ npm install easy-sql-tests --save-dev
 ```
 
 
 ## API
 
-#### EasySQLTests(dbConfig, [options])
+#### EasySQLTests(dbConfig [,options])
 
 > constructor to initialize easy sql tests module
 
-> **dbConfig** - mssql module database configuration  
-> **dbConfig.user**  
-> **dbConfig.password**  
-> **dbConfig.server**  
-> **dbConfig.database**   
-> **options** - extra options for the module   
-> **options.cleanupQuery** - (optional) query to be executed for cleanup() function  
-> **options.errorCallback** - (optional) function callback to be executed if one of the prepQueries will fail to execute  
+> `dbConfig` - mssql module database configuration  
+> `dbConfig.user`  
+> `dbConfig.password`  
+> `dbConfig.server`  
+> `dbConfig.database`   
+> `options` - extra options for the module   
+> `options.cleanupQuery` - (optional) query to be executed for cleanup() function  
+> `options.errorCallback` - (optional) function callback to be executed if one of the prepQueries will fail to execute  
 
 #### connectionOpen(callback)
 
@@ -40,12 +40,12 @@ $ npm install --save-dev easy-sql-tests
 
 > function to execute test steps  
 
-> **testSteps** - array of testStep objects  
-> **testStep.storProcName** - stored procedure name to be executed  
-> **testStep.args** - object containing arguments for stored procedure  
-> **testStep.query** - string containing query to be executed  
-> **testStep.assertionCallback** - callback after query/storProc being executed. Put your assertions inside   
-> **testStep.queries** - array of strings representing queries to be executed  
+> `testSteps` - array of testStep objects  
+> `testStep.storProcName` - stored procedure name to be executed  
+> `testStep.args` - object containing arguments for stored procedure  
+> `testStep.query` - string containing query to be executed  
+> `testStep.assertionCallback` - callback after query/storProc is executed. Callback have 2 arguments: `error` and `recordsets` which contains an array of arrays (array of tables). Put your assertions inside.   
+> `testStep.queries` - array of strings representing queries to be executed  
 
 #### connection
 
@@ -141,7 +141,7 @@ describe('my test suite', function() {
 ### Setup cleanup for the test suite
 
 To ensure proper testing you might want to cleanup all temporarily generated data by your tests.  
-You can easily achieve that by defining a **cleanupQuery** and calling **cleanup()** function.
+You can easily achieve that by defining a `cleanupQuery` and calling `cleanup()` function.
 
 ```javascript
 describe('my test suite', function() {
@@ -191,11 +191,10 @@ describe('my test suite', function() {
 it('My query test', function(done) {
   var assertionCallback = function(error, recordsets) {
     if (error) {
-      console.log(error);
-      return done();
+      return console.log(error);
     }
 
-    // test that we returned a table
+    // we returned back at least 1 table back
     expect(recordsets.length).to.equal(1);
   };
 
@@ -217,11 +216,10 @@ it('My query test', function(done) {
 it('My stor proc test', function(done) {
   var assertionCallback = function(error, recordsets) {
     if (error) {
-      console.log(error);
-      return done();
+      return console.log(error);
     }
 
-    // test that we returned a table
+    // we returned back at least 1 table back
     expect(recordsets.length).to.equal(1);
   };
 
@@ -241,28 +239,26 @@ it('My stor proc test', function(done) {
 ```
 
 
-### Run multiple test steps
+### Run multiple steps in the same test
 
-If you need to run multiple steps to check that logic is correct then you can define multiple **testSteps** with their assertions.
+If you need to run multiple steps to check that logic is correct then you can define multiple `testSteps` with their assertion callbacks.
 
 ```javascript
 it('Multiple steps inside the test', function(done) {
   var assertionCallback = function(error, recordsets) {
     if (error) {
-      console.log(error);
-      return done();
+      return console.log(error);
     }
 
-    // asserions here
+    // assertions here
   };
 
   var assertionCallback2 = function(error, recordsets) {
     if (error) {
-      console.log(error);
-      return done();
+      return console.log(error);
     }
 
-    // asserions here
+    // assertions here
   };
 
   var testSteps = [
@@ -290,7 +286,7 @@ it('Multiple steps inside the test', function(done) {
 ```
 
 
-### Run queries before executing your test
+### Run multiple queries to pre-setup data before executing your test
 
 Some of the tests require initial setup of the data or state in your testing database.
 
@@ -307,14 +303,16 @@ it('Prep queries before test', function(done) {
         "INSERT INTO [MY_TABLE] ([intVal],[strVal]) VALUES (2,'B');"
       ]
     },
-    // {
-    //    another test step
-    // },
     {
       storProcName: '[sp].[STOR_PROC]',
       args: {},
       assertionCallback: assertionCallback
-    }
+    },
+    // {
+    //    another test step
+    // },
+    // {
+    //    ...
   ];
 
   easySQLTests.compileTest(testSteps, done);
@@ -325,7 +323,7 @@ it('Prep queries before test', function(done) {
 ### Setting up a fail callback when prep queries fail
 
 You might want to capture and execute special logic in case one of the prep queries will fail.  
-In order to do so **errorCallback** is executed whenever one of those queries fails.
+In order to do so `errorCallback` is executed whenever one of those queries fails.
 
 ```javascript
 describe('my test suite', function() {
@@ -357,7 +355,9 @@ describe('my test suite', function() {
 A full blown example with open/close connection, cleanup query after each test will look the following:
 
 ```javascript
-var EasySQLTests = require('easy-sql-tests'));
+var chai = require('chai'),
+    expect = chai.expect,
+    EasySQLTests = require('easy-sql-tests'));
 
 describe('my test suite', function() {
 
@@ -411,23 +411,47 @@ describe('my test suite', function() {
     cleanup(done);
   });
 
-  it('Different Vendors. Select all vendors', function(done) {
-
-    var assertionCallback = sinon.spy(function(error, recordsets) {
-      if (error) {
-        return console.error(error);
-      }
-
-      // we have data
-      expect(recordsets.length).to.not.equal(0);
-    });
+  it(‘test #1 maybe basic select test’, function(done) {
 
     var assertionCallback = function(error, recordsets) {
       if (error) {
         return console.error(error);
       }
 
-      // we have data
+      // we returned back at least 1 table back
+      expect(recordsets.length).to.not.equal(0);
+    };
+
+    var testSteps = [
+      {
+        storProcName: '[sp].[STOR_PROC_SELECT]’,
+        args: {
+          intArg: 1
+        },
+        assertionCallback: assertionCallback
+      }
+    ];
+
+    easySQLTests.compileTest(testSteps, done);
+  });
+
+  it(‘test #2 maybe insert test’, function(done) {
+
+    var assertionCallback = function(error, recordsets) {
+      if (error) {
+        return console.error(error);
+      }
+
+      // we returned back at least 1 table back
+      expect(recordsets.length).to.not.equal(0);
+    };
+
+    var assertionCallback2 = function(error, recordsets) {
+      if (error) {
+        return console.error(error);
+      }
+
+      // we returned back at least 1 table back
       expect(recordsets.length).to.not.equal(0);
       // we have at least one row
       expect(recordsets[0]).to.not.equal(0);
@@ -441,7 +465,7 @@ describe('my test suite', function() {
         ]
       },
       {
-        storProcName: '[sp].[STOR_PROC]',
+        storProcName: '[sp].[STOR_PROC_INSERT]’,
         args: {
           intArg: 1,
           strArg: 'string'
@@ -450,12 +474,14 @@ describe('my test suite', function() {
       },
       {
         query: 'SELECT * FROM [MY_TABLE]',
-        assertionCallback: assertionCallback
+        assertionCallback: assertionCallback2
       }
     ];
 
     easySQLTests.compileTest(testSteps, done);
   });
+
+  // ...
 
 });
 ```
