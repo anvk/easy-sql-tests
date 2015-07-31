@@ -86,6 +86,10 @@ var EasySQLTest = (function () {
   }, {
     key: '_query',
     value: function _query(query, callback) {
+      if (!query) {
+        throw 'easy-sql-test: _query() requires query';
+      }
+
       var request = this._connection.request();
       return request.query(query, callback);
     }
@@ -94,7 +98,7 @@ var EasySQLTest = (function () {
     value: function _convertQueriesToTestSteps() {
       var _this = this;
 
-      var prepQueries = arguments.length <= 0 || arguments[0] === undefined ? [] : arguments[0];
+      var queries = arguments.length <= 0 || arguments[0] === undefined ? [] : arguments[0];
 
       var result = [];
 
@@ -103,10 +107,10 @@ var EasySQLTest = (function () {
       var _iteratorError = undefined;
 
       try {
-        for (var _iterator = prepQueries[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+        for (var _iterator = queries[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
           var query = _step.value;
 
-          if (!query || /^\s+$/.test(query)) {
+          if (!query) {
             continue;
           }
 
