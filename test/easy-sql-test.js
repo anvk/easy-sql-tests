@@ -7,7 +7,7 @@ var chai = require('chai'),
     sinon = require('sinon');
 
 describe('easy-sql-test tests', function() {
-  var emptyDbConfig = {};
+  var someDbConfig = {};
 
   describe('constructor test', function() {
     it('no dbConfig should throw error', function() {
@@ -38,7 +38,7 @@ describe('easy-sql-test tests', function() {
         mssql: mssqlStub
       });
 
-      var easySqlTestProxy = new EasySqlTest(emptyDbConfig);
+      var easySqlTestProxy = new EasySqlTest(someDbConfig);
 
       easySqlTestProxy.connectionOpen(connectCallback);
 
@@ -47,13 +47,13 @@ describe('easy-sql-test tests', function() {
     });
   });
 
-  describe('connectionClose tests', function(){
+  describe('connectionClose tests', function() {
     it('check connection.close() called', function() {
-      var closeFunctionSpy = sinon.spy(function(){});
+      var closeFunctionSpy = sinon.spy(function() {});
       var mssqlStub = {
         Connection: function() {
           return {
-            connect: function(){},
+            connect: function() {},
             close: closeFunctionSpy
           }
         }
@@ -63,7 +63,7 @@ describe('easy-sql-test tests', function() {
         mssql: mssqlStub
       });
 
-      var easySqlTestProxy = new EasySqlTest(emptyDbConfig);
+      var easySqlTestProxy = new EasySqlTest(someDbConfig);
 
       easySqlTestProxy.connectionOpen();
       easySqlTestProxy.connectionClose();
@@ -89,7 +89,7 @@ describe('easy-sql-test tests', function() {
         mssql: mssqlStub
       });
 
-      var easySqlTestProxy = new EasySqlTest(emptyDbConfig);
+      var easySqlTestProxy = new EasySqlTest(someDbConfig);
 
       easySqlTestProxy.connectionOpen();
       var actualConnection = easySqlTestProxy.connection;
@@ -98,32 +98,32 @@ describe('easy-sql-test tests', function() {
 
     it('get dbConfig()', function() {
 
-    	var expected = {
-    		a: 'a',
-    		b: 'b'
-    	};
+      var expected = {
+        a: 'a',
+        b: 'b'
+      };
 
-    	var easySqlTest = new EasySqlTest(expected);
+      var easySqlTest = new EasySqlTest(expected);
 
-    	var actual = easySqlTest.dbConfig;
-    	expect(expected).to.deep.equal(actual);
+      var actual = easySqlTest.dbConfig;
+      expect(expected).to.deep.equal(actual);
     });
   });
 
-  describe('_executeStorProc() tests', function(){
+  describe('_executeStorProc() tests', function() {
 
     it('no storProcName should throw error', function() {
-  		var errorMessage = 'easy-sql-test: _executeStorProc() requires' +
+      var errorMessage = 'easy-sql-test: _executeStorProc() requires' +
           ' storProcName';
 
-      var easySqlTest = new EasySqlTest(emptyDbConfig);
+      var easySqlTest = new EasySqlTest(someDbConfig);
 
       try{
-  			easySqlTest._executeStorProc();
-  		} catch(err) {
-  			expect(err).to.equal(errorMessage);
-  		}
-  	});
+        easySqlTest._executeStorProc();
+      } catch(err) {
+        expect(err).to.equal(errorMessage);
+      }
+    });
 
     it('connection.request.input() should be called once per arg', function() {
         var inputFunctionSpy = sinon.spy(function() {});
@@ -146,7 +146,7 @@ describe('easy-sql-test tests', function() {
           mssql: sqlStub
         });
 
-        var easySqlProxy = new EasySqlTest(emptyDbConfig);
+        var easySqlProxy = new EasySqlTest(someDbConfig);
 
         var storProcName = 'storProc';
         var args1 = {
@@ -194,7 +194,7 @@ describe('easy-sql-test tests', function() {
         mssql: sqlStub
       });
 
-      var easySqlProxy = new EasySqlTest(emptyDbConfig),
+      var easySqlProxy = new EasySqlTest(someDbConfig),
           callbackFunction = 'callbackFunction',
           storProcName = 'storProcName';
 
@@ -214,6 +214,17 @@ describe('easy-sql-test tests', function() {
   });
 
   describe('_query() tests', function(){
+    it('request.query called without query', function() {
+      var easySqlTest = new EasySqlTest(someDbConfig),
+          errorMessage = 'easy-sql-test: _query() requires query';
+
+      try {
+        easySqlTest._query();
+      } catch(err) {
+        expect(err).to.equal(errorMessage);
+      }
+    });
+
     it('request.query called correctly', function() {
       var expectedCallback = function() { return 'a' },
           queryFunctionSpy = sinon.spy(function() {});
@@ -239,32 +250,25 @@ describe('easy-sql-test tests', function() {
         mssql: sqlStub
       });
 
-      var easySqlProxy = new EasySqlTest(emptyDbConfig);
+      var easySqlProxy = new EasySqlTest(someDbConfig);
       easySqlProxy.connectionOpen();
 
       easySqlProxy._query(expectedArgs, expectedCallback);
-      easySqlProxy._query(undefined, expectedCallback);
       easySqlProxy._query(expectedArgs, undefined);
-      easySqlProxy._query();
 
       var firstCall = queryFunctionSpy.getCall(0),
-          secondCall = queryFunctionSpy.getCall(1),
-          thirdCall = queryFunctionSpy.getCall(2),
-          fourthCall = queryFunctionSpy.getCall(3);
+          secondCall = queryFunctionSpy.getCall(1);
 
       expect(queryFunctionSpy.called).to.be.true;
       expect(firstCall.calledWithExactly(expectedArgs, expectedCallback))
         .to.be.true;
-      expect(secondCall.calledWithExactly(undefined, expectedCallback))
-        .to.be.true;
-      expect(thirdCall.calledWithExactly(expectedArgs, undefined)).to.be.true;
-      expect(fourthCall.calledWithExactly(undefined, undefined)).to.be.true;
+      expect(secondCall.calledWithExactly(expectedArgs, undefined)).to.be.true;
     });
   });
 
   describe('_convertQueriesToTestSteps() tests', function() {
     var easySqlTest,
-        prepQuery;
+        queries;
 
     function assertionCallback(error) {
       if (error) {
@@ -273,27 +277,27 @@ describe('easy-sql-test tests', function() {
     };
 
     beforeEach(function() {
-      easySqlTest = new EasySqlTest(emptyDbConfig);
-      prepQuery = undefined;
+      easySqlTest = new EasySqlTest(someDbConfig);
+      queries = undefined;
     });
 
-    it('with no prepQuery', function() {
+    it('with no queries', function() {
       var result = easySqlTest._convertQueriesToTestSteps();
       expect(result).is.an('array').to.have.length(0);
     });
 
-    it('with one prepQuery', function() {
-      prepQuery = ['a'];
-      var result = easySqlTest._convertQueriesToTestSteps(prepQuery),
+    it('with one queries', function() {
+      queries = ['a'];
+      var result = easySqlTest._convertQueriesToTestSteps(queries),
           firstQuery = result[0];
       expect(result).to.have.length(1);
       expect(firstQuery.query).to.equal('a');
       expect(firstQuery).to.have.property('assertionCallback');
     });
 
-    it('with many prepQuery', function() {
-      prepQuery = ['a', undefined, '', '  ', 'b'];
-      var result = easySqlTest._convertQueriesToTestSteps(prepQuery),
+    it('with many queries', function() {
+      queries = ['a', undefined, '', 'b'];
+      var result = easySqlTest._convertQueriesToTestSteps(queries),
           firstQuery = result[0],
           secondQuery = result[1];
       expect(result).to.have.length(2);
@@ -318,7 +322,7 @@ describe('easy-sql-test tests', function() {
 
       _errorCallbackSpy = new sinon.spy(function() {});
 
-      easySqlTest = new EasySqlTest(emptyDbConfig, {
+      easySqlTest = new EasySqlTest(someDbConfig, {
         errorCallback: _errorCallbackSpy
       });
 
@@ -702,42 +706,234 @@ describe('easy-sql-test tests', function() {
       expect(assertionCallbackSpy3.callCount).to.equal(1);
     });
 
-    it.only('test step with queries but one of them fails and calls failCallback', function() {
+    it('test step with queries some of them fails and call errorCallback', function() {
 
-      easySqlTest._query = function(query, callback) {
-        callback('error');
-      };
+      easySqlTest._query = sinon.spy(function(query, callback) {
+        if (query === 'errorQuery') {
+          return callback('error');
+        }
+
+        callback(undefined);
+      });
 
       testSteps = [
         {
           queries: [
-            'query that will call errorCallback'
+            'errorQuery',
+            'goodQuery',
+            'errorQuery'
           ]
         }
       ];
 
-      var firstErrorCall = _errorCallbackSpy.getCall(0);
-      console.log(_errorCallbackSpy);
       easySqlTest.compileTest(testSteps);
+
+      var firstErrorCall = _errorCallbackSpy.getCall(0),
+          secondErrorCall = _errorCallbackSpy.getCall(1);
+
+
+      expect(easySqlTest._query.called).to.be.true;
+      expect(easySqlTest._query.callCount).to.equal(3);
       expect(_errorCallbackSpy.called).to.be.true;
-      expect(_errorCallbackSpy.callCount).to.equal(1);
-      //expect(firstErrorCall.args[0]).to.equal('error');
+      expect(_errorCallbackSpy.callCount).to.equal(2);
+      expect(firstErrorCall.args[0]).to.equal('error');
+      expect(secondErrorCall.args[0]).to.equal('error');
     });
 
     it('test step with query fails and calls assertionCallback with error', function() {
+      var assertionCallbackSpy1 = new sinon.spy(function() {}),
+          assertionCallbackSpy2 = new sinon.spy(function() {}),
+          assertionCallbackSpy3 = new sinon.spy(function() {});
 
+      easySqlTest._query = sinon.spy(function(query, callback) {
+        if (query === 'errorQuery') {
+          return callback('error');
+        }
+
+        callback(null);
+      });
+
+      testSteps = [
+        {
+          query: 'errorQuery',
+          assertionCallback: assertionCallbackSpy1
+        },
+        {
+          query: 'goodQuery',
+          assertionCallback: assertionCallbackSpy2
+        },
+        {
+          query: 'errorQuery',
+          assertionCallback: assertionCallbackSpy3
+        }
+      ];
+
+      easySqlTest.compileTest(testSteps);
+
+
+      var assertCb1Call1 = assertionCallbackSpy1.getCall(0),
+          assertCb2Call1 = assertionCallbackSpy2.getCall(0),
+          assertCb3Call1 = assertionCallbackSpy3.getCall(0);
+
+      expect(easySqlTest._query.called).to.be.true;
+      expect(easySqlTest._query.callCount).to.equal(3);
+
+      expect(assertionCallbackSpy1.called).to.be.true;
+      expect(assertionCallbackSpy1.callCount).to.equal(1);
+      expect(assertCb1Call1.args[0]).to.equal('error');
+
+      expect(assertionCallbackSpy2.called).to.be.true;
+      expect(assertionCallbackSpy2.callCount).to.equal(1);
+      expect(assertCb2Call1.args[0]).to.equal(null);
+
+      expect(assertionCallbackSpy3.called).to.be.true;
+      expect(assertionCallbackSpy3.callCount).to.equal(1);
+      expect(assertCb3Call1.args[0]).to.equal('error');
     });
 
     it('test step with storProc fails and calls assertionCallback with error', function() {
+      var assertionCallbackSpy1 = new sinon.spy(function() {}),
+          assertionCallbackSpy2 = new sinon.spy(function() {}),
+          assertionCallbackSpy3 = new sinon.spy(function() {});
 
+      easySqlTest._executeStorProc = sinon.spy(function(storProcName, args, callback) {
+        if (storProcName === 'errorProc') {
+          return callback('error');
+        }
+
+        callback(null, { data: 'true'});
+      });
+
+      testSteps = [
+        {
+          storProcName: 'errorProc',
+          args: { a: 'a'},
+          assertionCallback: assertionCallbackSpy1
+        },
+        {
+          storProcName: 'goodProc',
+          args: { b: 'b'},
+          assertionCallback: assertionCallbackSpy2
+        },
+        {
+          storProcName: 'errorProc',
+          args: { c: 'c'},
+          assertionCallback: assertionCallbackSpy3
+        }
+      ];
+
+      easySqlTest.compileTest(testSteps);
+
+
+      var assertCb1Call1 = assertionCallbackSpy1.getCall(0),
+          assertCb2Call1 = assertionCallbackSpy2.getCall(0),
+          assertCb3Call1 = assertionCallbackSpy3.getCall(0);
+
+      expect(easySqlTest._executeStorProc.called).to.be.true;
+      expect(easySqlTest._executeStorProc.callCount).to.equal(3);
+
+      expect(assertionCallbackSpy1.called).to.be.true;
+      expect(assertionCallbackSpy1.callCount).to.equal(1);
+      expect(assertCb1Call1.args[0]).to.equal('error');
+
+      expect(assertionCallbackSpy2.called).to.be.true;
+      expect(assertionCallbackSpy2.callCount).to.equal(1);
+      expect(assertCb2Call1.args[0]).to.equal(null);
+      expect(assertCb2Call1.args[1]).to.deep.equal({ data: 'true'});
+
+      expect(assertionCallbackSpy3.called).to.be.true;
+      expect(assertionCallbackSpy3.callCount).to.equal(1);
+      expect(assertCb3Call1.args[0]).to.equal('error');
     });
 
     it('done callback is executed at the end', function() {
 
+      var doneCallbackSpy = sinon.spy(function() {}),
+          assertionCallbackSpy1 = sinon.spy(function() {}),
+          assertionCallbackSpy2 = sinon.spy(function() {});
+
+      testSteps = [
+        {
+          storProcName: 'storProc',
+          args: { a: 'a'},
+          assertionCallback: assertionCallbackSpy1
+        },
+        {
+          query: 'query',
+          assertionCallback: assertionCallbackSpy2
+        }
+      ];
+
+      easySqlTest.compileTest(testSteps, doneCallbackSpy);
+
+      expect(doneCallbackSpy.called).to.be.true;
+      expect(doneCallbackSpy.callCount).to.equal(1);
+      expect(doneCallbackSpy.calledAfter(assertionCallbackSpy1)).to.be.true;
+      expect(doneCallbackSpy.calledAfter(assertionCallbackSpy2)).to.be.true;
+      expect(assertionCallbackSpy2.calledAfter(assertionCallbackSpy1))
+        .to.be.true;
     });
 
     it('done callback is executed at the end even if there is an error', function() {
 
+      var doneCallbackSpy = sinon.spy(function() {});
+
+      easySqlTest._query = sinon.spy(function(query, callback) {
+        callback('error');
+      });
+
+      testSteps = [
+        {
+          queries: [
+            'a'
+          ]
+        }
+      ];
+
+      easySqlTest.compileTest(testSteps, doneCallbackSpy);
+
+      expect(doneCallbackSpy.called).to.be.true;
+      expect(doneCallbackSpy.callCount).to.equal(1);
+      expect(_errorCallbackSpy.called).to.be.true;
+      expect(_errorCallbackSpy.callCount).to.equal(1);
+
+      expect(doneCallbackSpy.calledAfter(_errorCallbackSpy)).to.be.true;
+    });
+  });
+
+  describe('clean() tests', function() {
+
+    it('without cleanupQuery', function() {
+      var callbackSpy = sinon.spy(function() {}),
+          easySqlTest = new EasySqlTest(someDbConfig);
+
+      easySqlTest._query = sinon.spy(function() {});
+
+      easySqlTest.cleanup(callbackSpy);
+
+      expect(easySqlTest._query.called).to.be.false;
+      expect(callbackSpy.called).to.be.true;
+      expect(callbackSpy.callCount).to.equal(1);
+    });
+
+    it('with cleanupQuery', function() {
+      var callbackSpy = sinon.spy(function() {});
+
+      var easySqlTest = new EasySqlTest(someDbConfig, {
+        cleanupQuery: 'a'
+      });
+
+      easySqlTest._query = sinon.spy(function(query, callback) {
+        callback();
+      });
+
+      easySqlTest.cleanup(callbackSpy);
+
+      expect(easySqlTest._query.called).to.be.true;
+      expect(easySqlTest._query.callCount).to.equal(1);
+      expect(callbackSpy.called).to.be.true;
+      expect(callbackSpy.callCount).to.equal(1);
+      expect(callbackSpy.calledAfter(easySqlTest._query)).to.be.true;
     });
   });
 });

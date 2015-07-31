@@ -62,15 +62,19 @@ export default class EasySQLTest {
   }
 
   _query(query, callback) {
+    if (!query) {
+      throw 'easy-sql-test: _query() requires query';
+    }
+
     let request = this._connection.request();
     return request.query(query, callback);
   }
 
-  _convertQueriesToTestSteps(prepQueries = []) {
+  _convertQueriesToTestSteps(queries = []) {
     let result = [];
 
-    for (let query of prepQueries) {
-      if (!query || /^\s+$/.test(query)) {
+    for (let query of queries) {
+      if (!query) {
         continue;
       }
 
