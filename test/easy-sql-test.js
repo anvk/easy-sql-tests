@@ -299,12 +299,19 @@ describe('easy-sql-test tests', function() {
       queries = ['a', undefined, '', 'b'];
       var result = easySqlTest._convertQueriesToTestSteps(queries),
           firstQuery = result[0],
-          secondQuery = result[1];
-      expect(result).to.have.length(2);
+          secondQuery = result[1],
+          thirdQuery = result[2],
+          fourthQuery = result[3];
+          
+      expect(result).to.have.length(4);
       expect(firstQuery.query).to.equal('a');
-      expect(secondQuery.query).to.equal('b');
+      expect(secondQuery.query).to.equal(undefined);
+      expect(thirdQuery.query).to.equal('');
+      expect(fourthQuery.query).to.equal('b');
       expect(firstQuery).to.have.property('assertionCallback');
       expect(secondQuery).to.have.property('assertionCallback');
+      expect(thirdQuery).to.have.property('assertionCallback');
+      expect(fourthQuery).to.have.property('assertionCallback');
     });
   });
 
