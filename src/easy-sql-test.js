@@ -73,6 +73,8 @@ export default class EasySQLTest {
   _convertQueriesToTestSteps(queries = []) {
     let result = [];
 
+    // Replace forEach loop with for-of loop when ES6 is better supported by
+    // Babel and Node. The issue is with Symbol.iterator when code is transpiled
     queries.forEach(query => {
       result.push({
         query: query,
