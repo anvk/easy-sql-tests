@@ -110,10 +110,6 @@ var EasySQLTest = (function () {
         for (var _iterator = queries[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
           var query = _step.value;
 
-          if (!query) {
-            continue;
-          }
-
           result.push({
             query: query,
             assertionCallback: function assertionCallback(error) {

@@ -74,10 +74,7 @@ export default class EasySQLTest {
     let result = [];
 
     for (let query of queries) {
-      if (!query) {
-        continue;
-      }
-
+      
       result.push({
         query: query,
         assertionCallback: error => {
