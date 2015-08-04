@@ -1,4 +1,4 @@
-# easy-sql-tests [![Build Status](https://travis-ci.org/anvk/easy-sql-tests.svg?branch=master)](https://travis-ci.org/anvk/easy-sql-tests)
+﻿# easy-sql-tests [![Build Status](https://travis-ci.org/anvk/easy-sql-tests.svg?branch=master)](https://travis-ci.org/anvk/easy-sql-tests)
 
 > Micro framework to execute tests for T-SQL logic in Node.js
 
@@ -411,7 +411,7 @@ describe('my test suite', function() {
     cleanup(done);
   });
 
-  it(‘test #1 maybe basic select test’, function(done) {
+  it('test #1 maybe basic select test', function(done) {
 
     var assertionCallback = function(error, recordsets) {
       if (error) {
@@ -424,7 +424,7 @@ describe('my test suite', function() {
 
     var testSteps = [
       {
-        storProcName: '[sp].[STOR_PROC_SELECT]’,
+        storProcName: '[sp].[STOR_PROC_SELECT]',
         args: {
           intArg: 1
         },
@@ -435,7 +435,7 @@ describe('my test suite', function() {
     easySQLTests.compileTest(testSteps, done);
   });
 
-  it(‘test #2 maybe insert test’, function(done) {
+  it('test #2 maybe insert test', function(done) {
 
     var assertionCallback = function(error, recordsets) {
       if (error) {
@@ -465,7 +465,7 @@ describe('my test suite', function() {
         ]
       },
       {
-        storProcName: '[sp].[STOR_PROC_INSERT]’,
+        storProcName: '[sp].[STOR_PROC_INSERT]',
         args: {
           intArg: 1,
           strArg: 'string'

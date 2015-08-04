@@ -102,37 +102,16 @@ var EasySQLTest = (function () {
 
       var result = [];
 
-      var _iteratorNormalCompletion = true;
-      var _didIteratorError = false;
-      var _iteratorError = undefined;
-
-      try {
-        for (var _iterator = queries[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-          var query = _step.value;
-
-          result.push({
-            query: query,
-            assertionCallback: function assertionCallback(error) {
-              if (error) {
-                _this._errorCallback(error);
-              }
+      queries.forEach(function (query) {
+        result.push({
+          query: query,
+          assertionCallback: function assertionCallback(error) {
+            if (error) {
+              _this._errorCallback(error);
             }
-          });
-        }
-      } catch (err) {
-        _didIteratorError = true;
-        _iteratorError = err;
-      } finally {
-        try {
-          if (!_iteratorNormalCompletion && _iterator['return']) {
-            _iterator['return']();
           }
-        } finally {
-          if (_didIteratorError) {
-            throw _iteratorError;
-          }
-        }
-      }
+        });
+      });
 
       return result;
     }

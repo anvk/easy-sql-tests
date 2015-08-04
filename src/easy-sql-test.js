@@ -73,8 +73,7 @@ export default class EasySQLTest {
   _convertQueriesToTestSteps(queries = []) {
     let result = [];
 
-    for (let query of queries) {
-      
+    queries.forEach(query => {
       result.push({
         query: query,
         assertionCallback: error => {
@@ -83,7 +82,7 @@ export default class EasySQLTest {
           }
         }
       });
-    }
+    });
 
     return result;
   }
