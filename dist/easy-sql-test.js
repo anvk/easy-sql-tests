@@ -17,8 +17,9 @@ var _mssql = require('mssql');
 var _mssql2 = _interopRequireDefault(_mssql);
 
 var EasySQLTest = (function () {
-  function EasySQLTest(dbConfig, _ref) {
-    if (dbConfig === undefined) dbConfig = {};
+  function EasySQLTest(dbConfig) {
+    var _ref = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+
     var _ref$errorCallback = _ref.errorCallback;
     var errorCallback = _ref$errorCallback === undefined ? function (e) {
       return console.error(e);
@@ -26,6 +27,10 @@ var EasySQLTest = (function () {
     var cleanupQuery = _ref.cleanupQuery;
 
     _classCallCheck(this, EasySQLTest);
+
+    if (!dbConfig) {
+      throw 'easy-sql-test: dbConfig required';
+    }
 
     this._dbConfig = dbConfig;
     this._connection = undefined;
@@ -61,6 +66,10 @@ var EasySQLTest = (function () {
     value: function _executeStorProc(storProcName, args, callback) {
       if (args === undefined) args = {};
 
+      if (!storProcName) {
+        throw 'easy-sql-test: _executeStorProc() requires storProcName';
+      }
+
       var request = this._connection.request();
 
       for (var _name in args) {
@@ -72,12 +81,15 @@ var EasySQLTest = (function () {
 
       request.multiple = true;
       request.verbose = false;
-
       return request.execute(storProcName, callback);
     }
   }, {
     key: '_query',
     value: function _query(query, callback) {
+      if (!query) {
+        throw 'easy-sql-test: _query() requires query';
+      }
+
       var request = this._connection.request();
       return request.query(query, callback);
     }
@@ -86,41 +98,20 @@ var EasySQLTest = (function () {
     value: function _convertQueriesToTestSteps() {
       var _this = this;
 
-      var prepQueries = arguments.length <= 0 || arguments[0] === undefined ? [] : arguments[0];
+      var queries = arguments.length <= 0 || arguments[0] === undefined ? [] : arguments[0];
 
       var result = [];
 
-      var _iteratorNormalCompletion = true;
-      var _didIteratorError = false;
-      var _iteratorError = undefined;
-
-      try {
-        for (var _iterator = prepQueries[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-          var query = _step.value;
-
-          result.push({
-            query: query,
-            assertionCallback: function assertionCallback(error) {
-              if (error) {
-                _this._errorCallback(error);
-              }
+      queries.forEach(function (query) {
+        result.push({
+          query: query,
+          assertionCallback: function assertionCallback(error) {
+            if (error) {
+              _this._errorCallback(error);
             }
-          });
-        }
-      } catch (err) {
-        _didIteratorError = true;
-        _iteratorError = err;
-      } finally {
-        try {
-          if (!_iteratorNormalCompletion && _iterator['return']) {
-            _iterator['return']();
           }
-        } finally {
-          if (_didIteratorError) {
-            throw _iteratorError;
-          }
-        }
-      }
+        });
+      });
 
       return result;
     }

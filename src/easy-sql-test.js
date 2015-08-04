@@ -4,7 +4,11 @@ import sql from 'mssql';
 
 export default class EasySQLTest {
 
-  constructor(dbConfig = {}, {errorCallback = e=>console.error(e), cleanupQuery}) {
+  constructor(dbConfig, {errorCallback = e=>console.error(e), cleanupQuery}={}) {
+    if (!dbConfig) {
+      throw 'easy-sql-test: dbConfig required';
+    }
+
     this._dbConfig = dbConfig;
     this._connection = undefined;
     this._errorCallback = errorCallback;
@@ -39,6 +43,10 @@ export default class EasySQLTest {
   }
 
   _executeStorProc(storProcName, args = {}, callback) {
+    if (!storProcName) {
+      throw 'easy-sql-test: _executeStorProc() requires storProcName';
+    }
+
     let request = this._connection.request();
 
     for (let name in args) {
@@ -50,19 +58,24 @@ export default class EasySQLTest {
 
     request.multiple = true;
     request.verbose = false;
-
     return request.execute(storProcName, callback);
   }
 
   _query(query, callback) {
+    if (!query) {
+      throw 'easy-sql-test: _query() requires query';
+    }
+
     let request = this._connection.request();
     return request.query(query, callback);
   }
 
-  _convertQueriesToTestSteps(prepQueries = []) {
+  _convertQueriesToTestSteps(queries = []) {
     let result = [];
 
-    for (let query of prepQueries) {
+    // Replace forEach loop with for-of loop when ES6 is better supported by
+    // Babel and Node. The issue is with Symbol.iterator when code is transpiled
+    queries.forEach(query => {
       result.push({
         query: query,
         assertionCallback: error => {
@@ -71,7 +84,7 @@ export default class EasySQLTest {
           }
         }
       });
-    }
+    });
 
     return result;
   }
